@@ -4,127 +4,127 @@ const timer = document.querySelector(".timer");
 const end = document.querySelector(".end");
 const count = document.querySelector(".count");
 
-// const bug = document.querySelector(".bug");
-// const carrot = document.querySelector(".carrot");
+//sounds
+const bgSound = new sound("sound/bg.mp3");
+const bugSound = new sound("sound/bug_pull.mp3");
+const carrotSound = new sound("sound/carrot_pull.mp3");
+const winSound = new sound("sound/game_win.mp3");
+const lostSound = new sound("sound/alert.wav");
 
 let topPosition;
 let leftPosition;
-let id;
-let num = 9;
+let num;
 let countNum;
-
-
+let bug = false;
 id = 0;
 const randomPosition = () => {
   topPosition = Math.floor(Math.random() * 40) + 50;
   leftPosition = Math.floor(Math.random() * 100) + 1;
 };
-const createBug = () => {
-  randomPosition();
-  const image = document.createElement("img");
-  image.src = "img/bug.png";
-  image.setAttribute("class", "bug");
-  image.setAttribute("data-id", `${id}`);
-  image.style.position = "absolute";
-  image.style.top = `${topPosition}%`;
-  image.style.left = `${leftPosition}%`;
-  section.appendChild(image);
-  
-  id++;
-  
-};
-const createCarrot = () => {
-  randomPosition();
-  const image = document.createElement("img");
-  image.setAttribute("class", "carrot");
-  image.src = "img/carrot.png";
-  image.setAttribute("data-id", `${id}`);
-  image.style.position = "absolute";
-  image.style.top = `${topPosition}%`;
-  image.style.left = `${leftPosition}%`;
-  section.appendChild(image);
-  id++;
+
+const createItem = (item) => {
+  for (i = 0; i < countNum; i++) {
+    randomPosition();
+    const image = document.createElement("img");
+    image.src = `img/${item}.png`;
+    image.setAttribute("class", `${item}`);
+    image.style.position = "absolute";
+    image.style.top = `${topPosition}%`;
+    image.style.left = `${leftPosition}%`;
+    section.appendChild(image);
+    id++;
+  }
 };
 
-const deleteBug = () => {
-  
-  const bugID = document.querySelectorAll(".bug");
-  bugID.forEach(bugs => {
-    bugs.addEventListener("click", event=>{
-      countNum = countNum - 1;
-      
-      event.target.remove()
-      if(countNum == 0){
-        endGame("You Won");
-        
-
-      }count.innerHTML = `${countNum}`
-      
-    })
-  })
- 
-};
-const noCarrot = () => {
-    const carrotID = document.querySelectorAll(".carrot");
-  carrotID.forEach(carrots => {
-    carrots.addEventListener("click", event=>{
-      const redo = document.querySelector(".end__btn");
-      const msg = document.querySelector(".end__text");
-       end.style.opacity = "1";
-     redo.addEventListener("click", ()=>{
-    window.location.reload()
-  })
-    })
-  })
+const deleteCarrot = () => {
+  section.addEventListener("click", (e) => {
+    if (e.target.className === "carrot") {
+      if (countNum === "1") {
+        e.target.remove();
+        carrotSound.play();
+        endGame("You Won!!");
+        bgSound.stop();
+        winSound.play();
+      }
+      e.target.remove();
+      carrotSound.play();
+      countCarrot(countNum - 1);
+    }
+  });
 };
 
-
-const countBug = () => {
-  countNum = 5
+const clickBug = () => {
+  section.addEventListener("click", (e) => {
+    if (e.target.className === "bug") {
+      bug = true;
+      bugSound.play();
+      endGame("You Lost!!");
+      bgSound.stop();
+      lostSound.play();
+    }
+  });
+};
+const countCarrot = (num) => {
+  countNum = `${num}`;
   count.innerHTML = `${countNum}`;
 };
 
-const endGame = (text) =>{
+const endGame = (text) => {
   const redo = document.querySelector(".end__btn");
   const msg = document.querySelector(".end__text");
-  end.style.opacity = "1";
-  msg.innerHTML = `${text}`
-  redo.addEventListener("click", ()=>{
-    window.location.reload()
-  })
-  
+  button.style.visibility = "hidden";
+  end.style.visibility = "visible";
+  msg.innerHTML = `${text}`;
+  redo.addEventListener("click", () => {
+    window.location.reload();
+  });
+};
+
+const countdown = (num) => {
+  const countdownNum = setInterval(function () {
+    if (num <= 0) {
+      clearInterval(countdownNum);
+      button.innerHTML = `<i class="fas fa-play"></i>`;
+      bgSound.stop();
+      lostSound.play();
+      endGame("You Lost!!");
+    } else if (countNum == 0) {
+      clearInterval(countdownNum);
+      button.style.opacity = "1";
+    } else if (bug == true) {
+      clearInterval(countdownNum);
+    }
+    timer.innerHTML = `00:0${num}`;
+    num = num - 1;
+  }, 1000);
+};
+
+function sound(src) {
+  this.sound = document.createElement("audio");
+  this.sound.src = src;
+  this.sound.setAttribute("preload", "auto");
+  this.sound.setAttribute("controls", "none");
+  this.sound.style.display = "none";
+  document.body.appendChild(this.sound);
+  this.play = function () {
+    this.sound.play();
+  };
+  this.stop = function () {
+    this.sound.pause();
+  };
 }
-button.addEventListener("click", () => {
-  
-  button.innerHTML = `<i class="fas fa-stop"></i>`
-  
-  const countdown = setInterval(function () {
-  if (num <= 0) {
-    clearInterval(countdown);
-    button.innerHTML = `<i class="fas fa-play"></i>`
-    endGame()
-  } else if(countNum == 0){
-    clearInterval(countdown);
-    button.style.opacity = "0";
-  }
-  timer.innerHTML = `00:0${num}`;
-  num = num - 1;
-}, 1000);
 
-  countBug();
-  createBug();
-  createBug();
-  createBug();
-  createBug();
-  createBug();
-  createCarrot();
-  createCarrot();
-  createCarrot();
-  createCarrot();
-  createCarrot();
-  
-  deleteBug();
-  noCarrot();
+function init() {
+  button.addEventListener("click", () => {
+    bgSound.play();
+    button.innerHTML = `<i class="fas fa-stop"></i>`;
+    countdown(9);
+    countCarrot(5);
+    createItem("bug");
+    createItem("carrot");
+    clickBug();
+    deleteCarrot();
+  });
+}
 
- 
-});
+init();
