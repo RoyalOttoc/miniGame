@@ -49,6 +49,7 @@ section {
   width: 90%;
   height: 400px;
   position: absolute;
+  top: 250px;
   right: 70px;
   bottom: 0px;
   display: flex;
