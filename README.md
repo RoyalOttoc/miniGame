@@ -2,11 +2,11 @@
 
 Mini game made with javascript
 
-Functions
-[x] Start and stop button
-[x] Timer
-[x] Count
-[x] Event handlers for game
+### Functions
+- [x] Start and stop button
+- [x] Timer
+- [x] Count
+- [x] Event handlers for game
 
 ## Main
 <img width="500" height="300" alt="index" src="https://user-images.githubusercontent.com/53434429/108221515-fc2afa80-718b-11eb-8b46-18dd13f21d3c.png">
